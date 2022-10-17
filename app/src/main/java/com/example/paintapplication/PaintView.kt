@@ -1,6 +1,7 @@
 package com.example.paintapplication
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
@@ -48,26 +49,43 @@ class PaintView : View {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+    }
 
-        override fun onTouchEvent(event: MotionEvent?): Boolean {
-            var x = event.x
-            var y = event.y
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        var x = event?.x
+        var y = event?.y
 
-            when(event.action){
-                MotionEvent.ACTION_DOWN ->{
-                    path.moveTo(x,y)
+        if (event != null) {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    if (x != null) {
+                        if (y != null) {
+                            path.moveTo(x, y)
+                        }
+                    }
                     return true
                 }
-                MotionEvent.ACTION_MOVE ->{
-                    path.lineTo(x,y)
+                MotionEvent.ACTION_MOVE -> {
+                    if (y != null) {
+                        if (x != null) {
+                            path.lineTo(x, y)
+                        }
+                    }
                     pathList.add(path)
                     colorList.add(currentBrush)
                 }
                 else -> return false
             }
-            postInvalidate()
-            return false
         }
+        postInvalidate()
+        return false
     }
 
+    override fun onDraw(canvas: Canvas) {
+        for (i in pathList.indices) {
+            paintBrush.color = colorList[i]
+            canvas.drawPath(pathList[i], paintBrush)
+            invalidate()
+        }
+    }
 }
